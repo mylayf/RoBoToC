@@ -8,5 +8,8 @@ namespace RoBoToC.Server.Events
         public delegate EventHandler HookBuyCancellation(IBuyProcess buyProcess);
         public delegate EventHandler CompleteBuy(IBuyProcess buyProcess);
         public delegate EventHandler PartiallyCompleted(IBuyProcess buyProcess);
+
+        public delegate EventHandler CompleteSell(ISellProcess sellProcess);
+        public delegate EventHandler PartiallySell(ISellProcess sellProcess);
     }
 }

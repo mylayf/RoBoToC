@@ -25,7 +25,7 @@ namespace RoBoToC.Server.Trading.Binance
             }
         }
         private decimal _usingAmountRate { get; set; }
-        public bool BuyingHook { get; set; }
+        public bool Hook { get; set; }
         public User User { get; set; }
         public decimal HookPrice { get { return _hookPrice; } set { TargetPrice = value * 0.99m; _hookPrice = value; } }
         private decimal _hookPrice { get; set; }
@@ -38,8 +38,16 @@ namespace RoBoToC.Server.Trading.Binance
                 _lastPrice = value;
                 new Task(async () =>
                 {
-                    await HookTrack();
+                    if (Hook)
+                    {
+                        await HookTrack();
+                    }
+                    else
+                    {
+                        await Buy();
+                    }
                 }).Start();
+                return;
             }
         }
         private decimal _lastPrice { get; set; }
@@ -53,7 +61,7 @@ namespace RoBoToC.Server.Trading.Binance
         public event CompleteBuy OnCompleted;
         public event PartiallyCompleted OnPartiallyCompleted;
 
-        private IBinanceClient binanceClient;
+        public IBinanceClient binanceClient;
 
         public BinanceBuyProcess(IBinanceClient binanceClient)
         {
@@ -82,7 +90,6 @@ namespace RoBoToC.Server.Trading.Binance
 
         public async Task<bool> Buy()
         {
-
             var buyResult = await binanceClient.Spot.Order.PlaceOrderAsync(Currency, OrderSide.Buy, OrderType.Limit, Quantity, null, null, LastPrice);
             if (buyResult.Success)
             {
@@ -121,9 +128,20 @@ namespace RoBoToC.Server.Trading.Binance
                     if (WaitTimeCounter > 14)
                     {
                         await CancelOrder();
-                        if (OnPartiallyCompleted != null)
+                        if (Order.Data.QuantityFilled > 0)
                         {
-                            OnPartiallyCompleted(this);
+                            Quantity = Order.Data.Quantity;
+                            if (OnPartiallyCompleted != null)
+                            {
+                                OnPartiallyCompleted(this);
+                            }
+                        }
+                        else
+                        {
+                            if (OnPartiallyCompleted != null)
+                            {
+                                OnPartiallyCompleted(this);
+                            }
                         }
                         return false;
                     }

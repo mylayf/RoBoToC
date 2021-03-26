@@ -77,11 +77,17 @@ namespace RoBoToC.Server.Subscriber
 
         private EventHandler BuyProcess_OnPartiallyCompleted(IBuyProcess buyProcess)
         {
+            buyProcesses.Remove(buyProcess);
+            buyProcess = null;
+            var sellProcess = new BinanceSellProcess(((BinanceBuyProcess)buyProcess).binanceClient);
+            sellProcesses.Add(sellProcess);
             return null;
         }
 
         private EventHandler BuyProcess_OnHookBuyAbort(IBuyProcess buyProcess)
         {
+            buyProcesses.Remove(buyProcess);
+            buyProcess = null;
             return null;
         }
 
@@ -89,7 +95,7 @@ namespace RoBoToC.Server.Subscriber
         {
             buyProcesses.Remove(buyProcess);
             buyProcess = null;
-            var sellProcess = new BinanceSellProcess();
+            var sellProcess = new BinanceSellProcess(((BinanceBuyProcess)buyProcess).binanceClient);
             sellProcesses.Add(sellProcess);
             return null;
         }

@@ -12,7 +12,7 @@ namespace RoBoToC.Server.Trading
         decimal LastPrice { get; set; }
         decimal UsingAmount { get; set; }
         decimal UsingAmountRate { get; set; }
-        bool BuyingHook { get; set; }
+        bool Hook { get; set; }
         decimal HookPrice { get; set; }
         decimal TargetPrice { get; set; }
         decimal Quantity { get; set; }
